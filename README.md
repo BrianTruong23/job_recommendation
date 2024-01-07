@@ -1,5 +1,7 @@
 # Internship Recommendation System using Machine Learning
 
+Accessed Website: https://intershiprecommendation.streamlit.app/
+
 # Why this project is created? 
 Internship searching is hard! Thereofore, the goal of this system is to propose a lot of internship tailored to the upload of your resume.
 
@@ -18,6 +20,6 @@ In Summary,
 • Handled data cleaning to effectively remove stop words, lemmatize and vectorize sentences.
 • Used 2 popular NLP technique, TF-IDF and cosine similarity, to match resume with job descriptions
 
-Accessed Website: https://intershiprecommendation.streamlit.app/
+
 
 <img width="809" alt="internship_search" src="https://github.com/BrianTruong23/job_recommendation/assets/40693511/0f57a12c-0acd-4081-8da5-a0d6147b2341">
