@@ -25,6 +25,8 @@ NUM_POSTING = 50
 def main():
 
     nltk.download('punkt')
+    nltk.download('averaged_perceptron_tagger')
+    
     # Add CSS Style 
     with open('style.css') as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html = True)
