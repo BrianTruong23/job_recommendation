@@ -11,7 +11,6 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from bs4 import BeautifulSoup
-from io import StringIO
 
 # POS TAG AND Word Lemmatizer
 
@@ -21,8 +20,15 @@ ADJ, ADJ_SAT, ADV, NOUN, VERB = 'a', 's', 'r', 'n', 'v'
 POS_LIST = [NOUN, VERB, ADJ, ADV]
 
 NUM_POSTING = 50
-
 def main():
+    """
+    Main function for the web app.
+
+    Downloads necessary NLTK resources, sets up CSS styling, and creates the file uploader and user interface.
+
+    Returns:
+    None
+    """
 
     nltk.download('punkt')
     nltk.download('averaged_perceptron_tagger')
@@ -31,14 +37,15 @@ def main():
 
     # Add CSS Style 
     with open('style.css') as f:
-        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html = True)
+        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
     # Set the title of your app
-    st.title('Job Posting Based On Resume')
-
+    st.title('Internship Recommendations Based On Resume')
+    st.markdown("**Author: Thang Truong**")
+    st.markdown("[GitHub Repository](https://github.com/BrianTruong23/job_recommendation)")
     # Write a short description
-    st.write("""
+    st.markdown("""
     This web app matches your resume with available job postings to help you find relevant job opportunities.
-    Upload your resume and let the magic happen! This is a prototype to demonstrate the power of natural language processing especially TF-IDF and cosine similarity.
+    Upload your resume and let the magic happen! This is a prototype to demonstrate the power of **natural language processing** especially TF-IDF and cosine similarity.
     """)
 
     # Create a file uploader component
@@ -49,32 +56,63 @@ def main():
         st.info(f"File size: {uploaded_file.size} bytes")
         resume = read_pdf(uploaded_file)
         resume = pre_process_resume(resume)
+
+        with open("output.txt", "w") as f:
+            f.write(resume)
         df_resume_sorted = post_process_table(resume)
         st.write(df_resume_sorted, unsafe_allow_html=True)
 
 
 def post_process_table(uploaded_file):
+    """
+    Post-processes the job recommendations table after uploading a resume.
+
+    Parameters:
+    uploaded_file (str): The uploaded resume file.
+
+    Returns:
+    str: HTML-formatted table of job recommendations.
+    """
     # After getting the table and resume uploaded
     job_data_list = return_data_list()
-    job_df = pd.DataFrame(job_data_list, columns = ['Company', 'Role', 'Location', 'Application/Link', 'Date Posted'])
+    job_df = pd.DataFrame(job_data_list, columns=['Company', 'Role', 'Location', 'Application/Link', 'Date Posted'])
     job_df = pre_process_data_job(job_df)
 
     df_resume = return_table_job(str(uploaded_file), job_df)
-    df_resume_sorted = df_resume.head(NUM_POSTING).sort_index(ascending = True)
-    # df_resume_sorted['Application/Link'] = df_resume_sorted['Application/Link'].apply(lambda x: f'<a href = {x} target = "_blank">Apply </a>' )
-
+    df_resume_sorted = df_resume.head(NUM_POSTING).sort_index(ascending=True)
     df_resume_sorted['Application/Link'] = df_resume_sorted['Application/Link'].apply(make_clickable)
-    df_resume_sorted = df_resume_sorted.reset_index(drop = True).iloc[:, 0:-1]
-    df_resume_sorted.index = df_resume_sorted.index  + 1
+
+    df_resume_sorted = df_resume_sorted.reset_index(drop=True).iloc[:, 0:-1]
+    df_resume_sorted.index = df_resume_sorted.index + 1
     df_resume_sorted = df_resume_sorted.to_html(escape=False)
     return df_resume_sorted
 
 
+
 def make_clickable(link):
+    """
+    Create a clickable HTML link.
+
+    Parameters:
+    str: link - The URL for the hyperlink.
+
+    Returns:
+    str: An HTML-formatted string containing a clickable link.
+    """
     text = "Apply Link"
     return f'<a href="{link}">{text}</a>'
 
+
 def read_pdf(pdf_file):
+    """
+    Read text content from a PDF file.
+
+    Parameters:
+    str: pdf_file - The path to the PDF file.
+
+    Returns:
+    str: Text content extracted from the PDF file.
+    """
     # Get pdf file 
     # Return text of the resume
     reader = PdfReader(pdf_file)
@@ -83,12 +121,21 @@ def read_pdf(pdf_file):
     resume = page.extract_text()
     return resume
 
-def return_data_list():
-    # # Define the URL of the webpage you want to scrape
-    # url = "https://github.com/SimplifyJobs/Summer2024-Internships"
 
+def return_data_list():
+    """
+    Extract job data from an HTML file containing a table.
+
+    Reads the content of the HTML file, parses it with BeautifulSoup,
+    and extracts job data from the table.
+
+    Returns:
+    list: A list of lists containing job data, where each inner list
+          represents a row in the table with job information.
+    """
     job_data_list = []
-        # Read the content of the HTML file
+    
+    # Read the content of the HTML file
     with open('table.html', 'r', encoding='utf-8') as file:
         html_content = file.read()
 
@@ -110,13 +157,33 @@ def return_data_list():
     
     return job_data_list
 
+
 def keep_alpha_char(text):
+    """
+    Remove non-alphabetic characters from the input text, keeping only alphabetical characters.
+
+    Parameters:
+    - text (str): The input text containing alphanumeric and non-alphanumeric characters.
+
+    Returns:
+    str: A cleaned string containing only alphabetical characters.
+    """
     alpha_only_string = re.sub(r'[^a-zA-Z]', ' ', text)
     cleaned_string = re.sub(r'\s+', ' ', alpha_only_string)
     return cleaned_string
 
 
+
 def nltk_pos_tagger(nltk_tag):
+    """
+    Map NLTK POS tags to WordNet POS tags.
+
+    Parameters:
+    - nltk_tag (str): The POS tag assigned by NLTK.
+
+    Returns:
+    int or None: WordNet POS tag corresponding to the input NLTK POS tag, or None if not recognized.
+    """
     if nltk_tag.startswith('J'):
         return wordnet.ADJ
     elif nltk_tag.startswith('V'):
@@ -128,21 +195,48 @@ def nltk_pos_tagger(nltk_tag):
     else:          
         return None
 
+
     
 def lemmatize_sentence(sentence):
+    """
+    Lemmatize the words in the input sentence.
+
+    Parameters:
+    - sentence (str): The input sentence to be lemmatized.
+
+    Returns:
+    str: The lemmatized sentence.
+    """
     lemmatizer = WordNetLemmatizer()
-    nltk_tagged = nltk.pos_tag(nltk.word_tokenize(sentence))  
+    
+    # Part-of-speech tagging using NLTK
+    nltk_tagged = nltk.pos_tag(nltk.word_tokenize(sentence))
+    
+    # Map NLTK POS tags to WordNet POS tags
     wordnet_tagged = map(lambda x: (x[0], nltk_pos_tagger(x[1])), nltk_tagged)
+    
     lemmatized_sentence = []
     
+    # Lemmatize each word based on its POS tag
     for word, tag in wordnet_tagged:
         if tag is not None:      
             lemmatized_sentence.append(lemmatizer.lemmatize(word, tag))
+    
+    # Join the lemmatized words back into a sentence
     return " ".join(lemmatized_sentence)
 
 
 def remove_stop_words(text):
-    # tokenize the text 
+    """
+    Remove English stop words from the input text.
+
+    Parameters:
+    - text (str): The input text from which stop words will be removed.
+
+    Returns:
+    str: The input text with English stop words removed.
+    """
+    # Tokenize the text
     words = nltk.word_tokenize(str(text))
 
     # Get the list of English stop words
@@ -151,15 +245,27 @@ def remove_stop_words(text):
     # Remove stop words from the list of words
     filtered_words = [word for word in words if word.lower() not in stop_words]
 
+    # Join the filtered words back into a text
     filtered_text = ' '.join(filtered_words)
-    
+
     return filtered_text
 
 
-# Building the Recommendation Engine
+
 def recommend_job(input_word, tfidf_matrix, tfidf_vectorizer, df):
-    
-    # Calculate the TF-IDF vector for the input word -> Extract keywords 
+    """
+    Recommends jobs based on an input word using TF-IDF and cosine similarity.
+
+    Parameters:
+    - input_word (str): The input word or text for which job recommendations are sought.
+    - tfidf_matrix (scipy.sparse.csr_matrix): The TF-IDF matrix representing job descriptions.
+    - tfidf_vectorizer (TfidfVectorizer): The TF-IDF vectorizer used for vectorizing input words.
+    - df (pd.DataFrame): The DataFrame containing job information.
+
+    Returns:
+    pd.DataFrame: A table of recommended jobs sorted by similarity to the input word.
+    """
+    # Calculate the TF-IDF vector for the input word
     input_word_vector = tfidf_vectorizer.transform([input_word])
 
     # Calculate cosine similarities between the input word vector and job vectors
@@ -169,24 +275,46 @@ def recommend_job(input_word, tfidf_matrix, tfidf_vectorizer, df):
     job_indices = cosine_similarities.argsort()[0][::-1]
 
     # Extract the job titles corresponding to the top recommendations
-    
-    top_recommendations_full = []
-    for i in range(len(job_indices)):
-        job_full = df.iloc[job_indices[i]]
-        top_recommendations_full.append(job_full)
-        
+    top_recommendations_full = [df.iloc[index] for index in job_indices]
+
     return pd.DataFrame(top_recommendations_full)
 
 def pre_process_resume(resume_text):
+    """
+    Preprocesses a resume text by removing stop words, lemmatizing, and keeping only alphabet characters.
+
+    Parameters:
+    - resume_text (str): The text content of the resume.
+
+    Returns:
+    str: The preprocessed resume text.
+    """
+    # Remove non-alphabetic characters and keep only alphabet characters
     resume_text = keep_alpha_char(resume_text)
+
+    # Lemmatize the words in the resume text
     resume_text = lemmatize_sentence(resume_text)
+
+    # Remove stop words from the resume text
     resume_text = remove_stop_words(resume_text)
+
+    # Convert the resume text to lowercase
     resume_text = resume_text.lower()
+
     return resume_text
 
+
 def pre_process_data_job(job_df):
-    # Keep only alphabet characters, return words to its root and remove stop words 
-    # Removing na values 
+    """
+    Preprocess the job_df database by removing stop word, returning the words to its and keep only alphabet characters
+
+    Parameters:
+    - job_df (pd.DataFrame): The job database containing job descriptions.
+    job_df["data"] is the column that contains the title and the role of the internship
+
+    Returns:
+    pd.DataFrame: A table of recommended jobs that has the pre-processed data for the column data
+    """
     job_df = job_df.dropna()
     job_df['data'] = job_df['Role'].apply(keep_alpha_char)
     job_df['data']= job_df['data'].apply(lemmatize_sentence)
@@ -196,13 +324,29 @@ def pre_process_data_job(job_df):
 
 
 def return_table_job(text, job_df):
-    # Input: text -> resume uploaded file, job_df -> job database 
-    # More Text processing and TF-IDF vectorization
+    """
+    Generates a table of recommended jobs based on the provided resume text and a job database.
+
+    Parameters:
+    - text (str): The resume text or content of the uploaded resume file.
+    - job_df (pd.DataFrame): The job database containing job descriptions.
+
+    Returns:
+    pd.DataFrame: A table of recommended jobs sorted by relevance to the provided resume.
+    The table includes columns for job titles, locations, dates, and links to job postings.
+    """
+
     tfidf_vectorizer = TfidfVectorizer(stop_words='english')
     tfidf_matrix = tfidf_vectorizer.fit_transform(job_df['data'])
+    
+    # Recommend jobs using cosine similarity
     recommended_jobs = recommend_job(text, tfidf_matrix, tfidf_vectorizer, job_df)
+    
+    # Drop the first column, which is the similarity score
     recommended_jobs = recommended_jobs.drop(columns=recommended_jobs.columns[0])
+
     return recommended_jobs
+
 
 if __name__ == "__main__":
     main()
