@@ -20,6 +20,10 @@ In Summary,
 • Handled data cleaning to effectively remove stop words, lemmatize and vectorize sentences.
 • Used 2 popular NLP technique, TF-IDF and cosine similarity, to match resume with job descriptions
 
+# App Production Visualization
+
+![app_production](https://github.com/BrianTruong23/job_recommendation/assets/40693511/a7e38fa1-e4c6-4288-a2e5-fd6dfb18ed17)
+
 
 
 <img width="809" alt="internship_search" src="https://github.com/BrianTruong23/job_recommendation/assets/40693511/0f57a12c-0acd-4081-8da5-a0d6147b2341">
