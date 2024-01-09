@@ -23,9 +23,6 @@ Internship searching is a challenging task, and the process of finding the right
 - Get your internship based on your resume
 #### It is that easy and effective to search for your internship postings based on your resume. 
 
-# Database
-The internship database is from Simplify: https://simplify.jobs/l/Top-Summer-Internships. 
-
 # Machine Learning Process:
 My machine learning techniques implement the use of TF-IDF (Term Frequency - Inverse Document Frequency) vectorization technique and cosine similarity to match the descriptions of the job postings to the key words identified by the vectorization methods of the resume. The vectors effectively identifies the significance of the each word of the resume and job posting, and cosine similarity matches job postings with the resume keywords. 
 
