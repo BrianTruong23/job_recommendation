@@ -53,7 +53,7 @@ def main():
     """)
 
     # Create a file uploader component
-    uploaded_file = st.file_uploader("Upload a PDF file", type=["txt", "pdf", "docx"])
+    uploaded_file = st.file_uploader("Upload a PDF, TXT or DOCX file", type=["txt", "pdf", "docx"])
 
     if uploaded_file is not None:
         st.success(f"Uploaded: {uploaded_file.name}")
