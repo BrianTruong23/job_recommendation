@@ -15,10 +15,13 @@ Internship searching is a challenging task, and the process of finding the right
 
 #### Learning and Skill Development: 
 - Behind the scenes, this project serves as a learning experience in the field of data science application development for me. It involves the implementation of various natural language processing techniques and optimization strategies to enhance the performance and efficiency of the recommendation system.
-
-## Step 1: Upload the Resume as PDF 
-## Step 2: Get your job based on your resume 
-It is that easy and effective to search for your job postings based on your resume. The jobs are updated as soon as the jobs are posted, and if you use Simplify to apply for jobs. It is even easier for you to apply for them.
+- 
+# What is the process look like for the users?
+#### Step 1: 
+- Upload the Resume as PDF 
+#### Step 2: 
+- Get your internship based on your resume
+#### It is that easy and effective to search for your internship postings based on your resume. 
 
 # Database
 The internship database is from Simplify: https://simplify.jobs/l/Top-Summer-Internships. 
