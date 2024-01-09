@@ -10,7 +10,7 @@ from nltk.corpus import stopwords
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-
+from bs4 import BeautifulSoup
 
 # POS TAG AND Word Lemmatizer
 
@@ -18,7 +18,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 ADJ, ADJ_SAT, ADV, NOUN, VERB = 'a', 's', 'r', 'n', 'v'
 #}
 POS_LIST = [NOUN, VERB, ADJ, ADV]
-
 
 NUM_POSTING = 50
 
@@ -34,6 +33,13 @@ def main():
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html = True)
     # Set the title of your app
     st.title('Job Posting Based On Resume')
+
+    # Write a short description
+    st.write("""
+    This web app matches your resume with available job postings to help you find relevant job opportunities.
+    Upload your resume and let the magic happen! This is a prototype to demonstrate the power of natural language processing especially TF-IDF and cosine similarity.
+    """)
+
     # Create a file uploader component
     uploaded_file = st.file_uploader("Upload a PDF file", type=["pdf"])
 
@@ -45,6 +51,7 @@ def main():
 
 
 def post_process_table(uploaded_file):
+    # After getting the table and resume uploaded
     job_data_list = return_data_list()
     job_df = pd.DataFrame(job_data_list, columns = ['Company', 'Role', 'Location', 'Application/Link', 'Date Posted'])
     job_df = pre_process_data(job_df)
@@ -72,38 +79,29 @@ def read_pdf(pdf_file):
     return resume
 
 def return_data_list():
-    import requests
-    from bs4 import BeautifulSoup
-
-    # Define the URL of the webpage you want to scrape
-    url = "https://github.com/SimplifyJobs/Summer2024-Internships"
-
-    # Send an HTTP GET request to the URL
-    response = requests.get(url)
+    # # Define the URL of the webpage you want to scrape
+    # url = "https://github.com/SimplifyJobs/Summer2024-Internships"
 
     job_data_list = []
+        # Read the content of the HTML file
+    with open('table.html', 'r', encoding='utf-8') as file:
+        html_content = file.read()
 
-    # Check if the request was not successful (status code 200)
-    if response.status_code != 200:
-        raise ValueError("unable to retrieve the webpage")
+    # Parse the HTML content with BeautifulSoup
+    soup = BeautifulSoup(html_content, 'html.parser')
 
-    # Parse the HTML content of the page using Beautiful Soup
-    soup = BeautifulSoup(response.text, 'html.parser')
-
-    # Find the <tbody> element
-    tbody = soup.find('tbody')
+    # Find the table element (adjust 'table' if you have a different tag)
+    table = soup.find('table')
 
     # Find all <tr> elements within the <tbody>
-    
-    tr_elements = tbody.find_all('tr')
+    tr_elements = table.find_all('tr')
 
     # Iterate through the <tr> elements and extract the second <td>
     for i in range(len(tr_elements)):
         tr = tr_elements[i]
         td_ele = tr.find_all('td')
         td_list = [td.text.strip() if td.text.strip() else td.find('a').get('href') for td in td_ele]
-        job_data_list.append(td_list)    
-   
+        job_data_list.append(td_list)
     
     return job_data_list
 
@@ -155,7 +153,7 @@ def remove_stop_words(text):
 
 # Building the Recommendation Engine
 def recommend_job(input_word, tfidf_matrix, tfidf_vectorizer, df):
-    # Calculate the TF-IDF vector for the input word
+    # Calculate the TF-IDF vector for the input word -> Extract keywords 
     input_word_vector = tfidf_vectorizer.transform([input_word])
 
     # Calculate cosine similarities between the input word vector and job vectors
@@ -175,6 +173,7 @@ def recommend_job(input_word, tfidf_matrix, tfidf_vectorizer, df):
 
 
 def pre_process_data(job_df):
+    job_df = job_df.dropna()
     job_df['data'] = job_df['Role'].apply(keep_alpha_char)
     job_df['data']= job_df['data'].apply(lemmatize_sentence)
     job_df['data'] = job_df['data'].apply(remove_stop_words)
