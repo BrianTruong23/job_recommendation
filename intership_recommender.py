@@ -8,6 +8,7 @@ from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet
 from nltk.corpus import stopwords
 import pandas as pd
+import sklearn
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from bs4 import BeautifulSoup
@@ -80,6 +81,8 @@ def get_top_features(resume_text, job_df):
     tfidf_vectorizer = TfidfVectorizer(stop_words='english')
     tfidf_matrix = tfidf_vectorizer.fit_transform(job_df['data'])
     
+    # Print the scikit-learn version
+    st.write("scikit-learn version:", sklearn.__version__)
     # Calculate the TF-IDF vector for the input word
     resume_text_vector = tfidf_vectorizer.transform([resume_text])
 
