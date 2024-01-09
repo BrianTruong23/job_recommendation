@@ -11,6 +11,7 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from bs4 import BeautifulSoup
+from io import StringIO
 
 # POS TAG AND Word Lemmatizer
 
@@ -41,12 +42,14 @@ def main():
     """)
 
     # Create a file uploader component
-    uploaded_file = st.file_uploader("Upload a PDF file", type=["pdf"])
+    uploaded_file = st.file_uploader("Upload a PDF file", type=["txt", "pdf", "docx"])
 
     if uploaded_file is not None:
         st.success(f"Uploaded: {uploaded_file.name}")
         st.info(f"File size: {uploaded_file.size} bytes")
-        df_resume_sorted = post_process_table(uploaded_file)
+        resume = read_pdf(uploaded_file)
+        resume = pre_process_resume(resume)
+        df_resume_sorted = post_process_table(resume)
         st.write(df_resume_sorted, unsafe_allow_html=True)
 
 
@@ -54,7 +57,7 @@ def post_process_table(uploaded_file):
     # After getting the table and resume uploaded
     job_data_list = return_data_list()
     job_df = pd.DataFrame(job_data_list, columns = ['Company', 'Role', 'Location', 'Application/Link', 'Date Posted'])
-    job_df = pre_process_data(job_df)
+    job_df = pre_process_data_job(job_df)
 
     df_resume = return_table_job(str(uploaded_file), job_df)
     df_resume_sorted = df_resume.head(NUM_POSTING).sort_index(ascending = True)
@@ -72,6 +75,8 @@ def make_clickable(link):
     return f'<a href="{link}">{text}</a>'
 
 def read_pdf(pdf_file):
+    # Get pdf file 
+    # Return text of the resume
     reader = PdfReader(pdf_file)
     number_of_pages = len(reader.pages)
     page = reader.pages[0]
@@ -153,6 +158,7 @@ def remove_stop_words(text):
 
 # Building the Recommendation Engine
 def recommend_job(input_word, tfidf_matrix, tfidf_vectorizer, df):
+    
     # Calculate the TF-IDF vector for the input word -> Extract keywords 
     input_word_vector = tfidf_vectorizer.transform([input_word])
 
@@ -171,8 +177,16 @@ def recommend_job(input_word, tfidf_matrix, tfidf_vectorizer, df):
         
     return pd.DataFrame(top_recommendations_full)
 
+def pre_process_resume(resume_text):
+    resume_text = keep_alpha_char(resume_text)
+    resume_text = lemmatize_sentence(resume_text)
+    resume_text = remove_stop_words(resume_text)
+    resume_text = resume_text.lower()
+    return resume_text
 
-def pre_process_data(job_df):
+def pre_process_data_job(job_df):
+    # Keep only alphabet characters, return words to its root and remove stop words 
+    # Removing na values 
     job_df = job_df.dropna()
     job_df['data'] = job_df['Role'].apply(keep_alpha_char)
     job_df['data']= job_df['data'].apply(lemmatize_sentence)
@@ -182,6 +196,7 @@ def pre_process_data(job_df):
 
 
 def return_table_job(text, job_df):
+    # Input: text -> resume uploaded file, job_df -> job database 
     # More Text processing and TF-IDF vectorization
     tfidf_vectorizer = TfidfVectorizer(stop_words='english')
     tfidf_matrix = tfidf_vectorizer.fit_transform(job_df['data'])
