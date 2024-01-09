@@ -20,6 +20,9 @@ ADJ, ADJ_SAT, ADV, NOUN, VERB = 'a', 's', 'r', 'n', 'v'
 POS_LIST = [NOUN, VERB, ADJ, ADV]
 
 NUM_POSTING = 50
+
+TOP_N_KEYWORDS = 5
+
 def main():
     """
     Main function for the web app.
@@ -46,6 +49,7 @@ def main():
     st.markdown("""
     This web app matches your resume with available job postings to help you find relevant job opportunities.
     Upload your resume and let the magic happen! This is a prototype to demonstrate the power of **natural language processing** especially TF-IDF and cosine similarity.
+    It can also display top keywords extracted from the resume so that the user will know what keywords are important in their resume.
     """)
 
     # Create a file uploader component
@@ -56,14 +60,54 @@ def main():
         st.info(f"File size: {uploaded_file.size} bytes")
         resume = read_pdf(uploaded_file)
         resume = pre_process_resume(resume)
-
-        with open("output.txt", "w") as f:
-            f.write(resume)
-        df_resume_sorted = post_process_table(resume)
+        job_df = get_job_df()
+        df_resume_sorted = post_process_table(resume, job_df)
+        display_features_slider(resume, job_df)
         st.write(df_resume_sorted, unsafe_allow_html=True)
 
 
-def post_process_table(uploaded_file):
+def display_features_slider(resume, job_df):
+
+    selected_features= st.slider(f"Select keywords extracted from your resume:", min_value=1, max_value=100, value=5)
+    top_features = get_top_features(resume, job_df)
+    st.write(f"Selected {selected_features} keywords:")
+    data = pd.DataFrame({"Top Keywords": top_features[:selected_features]})
+    # Display the DataFrame with a maximum of 10 rows
+    st.table(data)
+
+def get_top_features(resume_text, job_df):
+
+    tfidf_vectorizer = TfidfVectorizer(stop_words='english')
+    tfidf_matrix = tfidf_vectorizer.fit_transform(job_df['data'])
+    
+    # Calculate the TF-IDF vector for the input word
+    resume_text_vector = tfidf_vectorizer.transform([resume_text])
+
+    # Get feature names from the TF-IDF vectorizer
+    feature_names = np.array(tfidf_vectorizer.get_feature_names_out())
+
+    # Get the indices of features sorted by TF-IDF scores
+    feature_indices = np.argsort(resume_text_vector.toarray()[0])[::-1]
+
+    # Extract the top N features (keywords and skills)
+    top_features = feature_names[feature_indices]
+
+    return top_features
+
+def get_job_df():
+    """
+    Pre-processes the job database
+
+    Returns:
+    job_df: DataFrame after pre-processing
+    """
+     
+    job_data_list = return_data_list()
+    job_df = pd.DataFrame(job_data_list, columns=['Company', 'Role', 'Location', 'Application/Link', 'Date Posted'])
+    job_df = pre_process_data_job(job_df)
+    return job_df
+
+def post_process_table(uploaded_file, job_df):
     """
     Post-processes the job recommendations table after uploading a resume.
 
@@ -73,10 +117,6 @@ def post_process_table(uploaded_file):
     Returns:
     str: HTML-formatted table of job recommendations.
     """
-    # After getting the table and resume uploaded
-    job_data_list = return_data_list()
-    job_df = pd.DataFrame(job_data_list, columns=['Company', 'Role', 'Location', 'Application/Link', 'Date Posted'])
-    job_df = pre_process_data_job(job_df)
 
     df_resume = return_table_job(str(uploaded_file), job_df)
     df_resume_sorted = df_resume.head(NUM_POSTING).sort_index(ascending=True)
@@ -252,12 +292,12 @@ def remove_stop_words(text):
 
 
 
-def recommend_job(input_word, tfidf_matrix, tfidf_vectorizer, df):
+def recommend_job(resume_text, tfidf_matrix, tfidf_vectorizer, df):
     """
     Recommends jobs based on an input word using TF-IDF and cosine similarity.
 
     Parameters:
-    - input_word (str): The input word or text for which job recommendations are sought.
+    - resume_text (str): The input word or text for which job recommendations are sought.
     - tfidf_matrix (scipy.sparse.csr_matrix): The TF-IDF matrix representing job descriptions.
     - tfidf_vectorizer (TfidfVectorizer): The TF-IDF vectorizer used for vectorizing input words.
     - df (pd.DataFrame): The DataFrame containing job information.
@@ -266,10 +306,10 @@ def recommend_job(input_word, tfidf_matrix, tfidf_vectorizer, df):
     pd.DataFrame: A table of recommended jobs sorted by similarity to the input word.
     """
     # Calculate the TF-IDF vector for the input word
-    input_word_vector = tfidf_vectorizer.transform([input_word])
+    resume_text_vector = tfidf_vectorizer.transform([resume_text])
 
     # Calculate cosine similarities between the input word vector and job vectors
-    cosine_similarities = cosine_similarity(input_word_vector, tfidf_matrix)
+    cosine_similarities = cosine_similarity(resume_text_vector, tfidf_matrix)
 
     # Get indices of jobs sorted by similarity (highest to lowest)
     job_indices = cosine_similarities.argsort()[0][::-1]
@@ -306,24 +346,29 @@ def pre_process_resume(resume_text):
 
 def pre_process_data_job(job_df):
     """
-    Preprocess the job_df database by removing stop word, returning the words to its and keep only alphabet characters
+    Preprocess the job_df database by removing stop words, returning the words to their base form,
+    and keeping only alphabet characters.
 
     Parameters:
     - job_df (pd.DataFrame): The job database containing job descriptions.
-    job_df["data"] is the column that contains the title and the role of the internship
+      job_df["Role"] is the column that contains the title and the role of the internship.
 
     Returns:
-    pd.DataFrame: A table of recommended jobs that has the pre-processed data for the column data
+    pd.DataFrame: A table of recommended jobs that has the pre-processed data for the column "Role".
     """
-    job_df = job_df.dropna()
+    # Drop rows with missing values in the "Role" column
+    job_df = job_df.dropna(subset=['Role'])
+
+    # Apply preprocessing steps
     job_df['data'] = job_df['Role'].apply(keep_alpha_char)
-    job_df['data']= job_df['data'].apply(lemmatize_sentence)
+    job_df['data'] = job_df['data'].apply(lemmatize_sentence)
     job_df['data'] = job_df['data'].apply(remove_stop_words)
     job_df['data'] = job_df['data'].str.lower()
+
     return job_df
 
 
-def return_table_job(text, job_df):
+def return_table_job(resume_text, job_df):
     """
     Generates a table of recommended jobs based on the provided resume text and a job database.
 
@@ -340,7 +385,7 @@ def return_table_job(text, job_df):
     tfidf_matrix = tfidf_vectorizer.fit_transform(job_df['data'])
     
     # Recommend jobs using cosine similarity
-    recommended_jobs = recommend_job(text, tfidf_matrix, tfidf_vectorizer, job_df)
+    recommended_jobs = recommend_job(resume_text, tfidf_matrix, tfidf_vectorizer, job_df)
     
     # Drop the first column, which is the similarity score
     recommended_jobs = recommended_jobs.drop(columns=recommended_jobs.columns[0])
