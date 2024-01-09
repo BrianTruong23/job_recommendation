@@ -24,4 +24,6 @@ In Summary,
 
 <img src="https://github.com/BrianTruong23/job_recommendation/assets/40693511/a7e38fa1-e4c6-4288-a2e5-fd6dfb18ed17" alt="app_production" width="800" height="800">
 
-<img width="800" alt="internship_search" src="https://github.com/BrianTruong23/job_recommendation/assets/40693511/0f57a12c-0acd-4081-8da5-a0d6147b2341">
+# Demo 
+<img width="736" alt="demo" src="https://github.com/BrianTruong23/job_recommendation/assets/40693511/d2b04098-66c6-4859-8771-625da8549385">
+
