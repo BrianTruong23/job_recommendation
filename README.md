@@ -8,13 +8,13 @@ Internship searching is a challenging task, and the process of finding the right
 ### The primary objectives of this project include:
 
 #### Facilitating Easier Internship Discovery: 
-The system leverages natural language processing techniques, such as TF-IDF and cosine similarity, to recommend internship postings that closely match the content of your resume. This assists users in discovering opportunities that align with their qualifications and preferences.
+- The system leverages natural language processing techniques, such as TF-IDF and cosine similarity, to recommend internship postings that closely match the content of your resume. This assists users in discovering opportunities that align with their qualifications and preferences.
 
 #### Empowering Users to Identify Resume Strengths: 
-In addition to internship recommendations, the system provides insights into the key strengths of your resume. By understanding which skills and experiences are highlighted, users can gain valuable insights into how their profiles are perceived by potential employers.
+- In addition to internship recommendations, the system provides insights into the key strengths of your resume. By understanding which skills and experiences are highlighted, users can gain valuable insights into how their profiles are perceived by potential employers.
 
 #### Learning and Skill Development: 
-Behind the scenes, this project serves as a learning experience in the field of data science application development for me. It involves the implementation of various natural language processing techniques and optimization strategies to enhance the performance and efficiency of the recommendation system.
+- Behind the scenes, this project serves as a learning experience in the field of data science application development for me. It involves the implementation of various natural language processing techniques and optimization strategies to enhance the performance and efficiency of the recommendation system.
 
 ## Step 1: Upload the Resume as PDF 
 ## Step 2: Get your job based on your resume 
