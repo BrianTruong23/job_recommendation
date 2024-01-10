@@ -15,7 +15,7 @@ Internship searching is a challenging task, and the process of finding the right
 
 #### Learning and Skill Development: 
 - Behind the scenes, this project serves as a learning experience in the field of data science application development for me. It involves the implementation of various natural language processing techniques and optimization strategies to enhance the performance and efficiency of the recommendation system.
-- 
+
 # What is the process look like for the users?
 #### Step 1: 
 - Upload the Resume as PDF 
