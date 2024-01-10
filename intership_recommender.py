@@ -48,8 +48,9 @@ def main():
     # Write a short description
     st.markdown("""
     This web app matches your resume with available job postings to help you find relevant job opportunities.
-    Upload your resume and let the magic happen! This is a prototype to demonstrate the power of **natural language processing** especially TF-IDF and cosine similarity.
-    It can also display top keywords extracted from the resume so that the user will know what keywords are important in their resume.
+    Upload your resume and let the magic happen!             
+    - This is a prototype to demonstrate the power of **natural language processing especially TF-IDF and cosine similarity.**
+    - It can also display top keywords extracted from the resume so that the user will know what keywords are important in their resume.
     """)
 
     # Create a file uploader component
