@@ -37,7 +37,8 @@ My machine learning techniques implement the use of TF-IDF (Term Frequency - Inv
 <img width="736" alt="demo" src="https://github.com/BrianTruong23/job_recommendation/assets/40693511/d2b04098-66c6-4859-8771-625da8549385">
 
 # Testing 
-After examing the dataset, a lot of jobs are in software engineering industry and some are in finance industry (with a majority in software engineering field). Therefore, I proposed two documents containg keywords relating two subfields in software engineering for a fair and complete testing process: data science and web developer. Then, the system will try to recommend corresponding job postings based on the keywords. After that, in order to evaluate the accuracy, I can calculate the percentage of accuracy by counting all of the roles relating to those two fields respectively out of the total job postings. 
+
+After analyzing the dataset, it became apparent that a significant number of jobs belong to the software engineering industry, with some also falling within the finance sector (though the majority still lie in software engineering). To ensure a thorough and unbiased testing process, I've proposed creating two documents focusing on keywords related to subfields in software engineering: data science and web development. Subsequently, the system will generate recommendations for job postings based on these keywords. To assess accuracy, I will calculate the percentage of roles related to these two fields individually, considering them against the total number of job postings. The main file for testing and accuracy calculation is testing.py which is located in Testing folder of the Github repo.
 
 **Overall Statistics:**
 Total Roles: 657
