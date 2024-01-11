@@ -402,8 +402,8 @@ def pre_process_data_job(job_df):
     job_df['data'] = job_df['data'].str.lower()
 
     # Removing string that has 🔒 (which means no longer active) in application/link
-    job_df["Application/Link"].replace('🔒', pd.NA, inplace=True)
-    job_df.dropna(inplace = True)
+    # job_df["Application/Link"].replace('🔒', pd.NA, inplace=True)
+    # job_df.dropna(inplace = True)
 
     return job_df
 
