@@ -5,7 +5,12 @@ from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 
 # Set up the Selenium WebDriver
-driver = webdriver.Chrome()  # You may need to adjust this based on your browser and WebDriver
+# driver = webdriver.Chrome(executable_path="chromedriver_mac/chromedriver")  # You may need to adjust this based on your browser and WebDriver
+
+chrome_path = "chromedriver_linux/chromedriver"
+chrome_service = webdriver.chrome.service.Service(chrome_path)
+
+driver = webdriver.Chrome(service=chrome_service)
 
 # Navigate to the webpage
 url = "https://github.com/SimplifyJobs/Summer2024-Internships"
