@@ -23,6 +23,9 @@ Internship searching is a challenging task, and the process of finding the right
 - Get your internship based on your resume
 #### It is that easy and effective to search for your internship postings based on your resume. 
 
+# Data Processing:
+I scraped the web using Web Driver Selenium and Beautiful Soup to extract 1898 job postings. After getting the job postings, I need to elminate all of the job postings that are inactive (empty string in the Application/Link) to get 657 job postings left. After that, all the job title and roles are processed by eliminating all of the stopwords, returning them to their roots (lemmatizing them), keep only alphabet characters and lowering-case them. 
+
 # Machine Learning Process:
 My machine learning techniques implement the use of TF-IDF (Term Frequency - Inverse Document Frequency) vectorization technique and cosine similarity to match the descriptions of the job postings to the key words identified by the vectorization methods of the resume. The vectors effectively identifies the significance of the each word of the resume and job posting, and cosine similarity matches job postings with the resume keywords. 
 
@@ -32,4 +35,28 @@ My machine learning techniques implement the use of TF-IDF (Term Frequency - Inv
 
 # Demo 
 <img width="736" alt="demo" src="https://github.com/BrianTruong23/job_recommendation/assets/40693511/d2b04098-66c6-4859-8771-625da8549385">
+
+# Testing 
+After examing the dataset, a lot of jobs are in software engineering industry and some are in finance industry (with a majority in software engineering field). Therefore, I proposed two documents containg keywords relating two subfields in software engineering for a fair and complete testing process: data science and web developer. Then, the system will try to recommend corresponding job postings based on the keywords. After that, in order to evaluate the accuracy, I can calculate the percentage of accuracy by counting all of the roles relating to those two fields respectively out of the total job postings. 
+
+**Overall Statistics:**
+Total Roles: 657
+Data Science Roles: 71
+Web Development Roles: 45
+
+__Results of Testing for Data Science Roles:__
+For the CSV file named data_science_roles_testing.csv:
+Total Roles: 40
+Data Science Roles: 28
+__Percentage Correct: 70.0%__
+
+__Results of Testing for Web Development Roles:__
+For the CSV file named web_dev_roles_testing.csv:
+Total Roles: 40
+Web Development Roles: 32
+__Percentage Correct: 80.0%__
+
+
+
+
 
