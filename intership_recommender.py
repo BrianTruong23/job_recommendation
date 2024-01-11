@@ -156,6 +156,7 @@ def post_process_table(uploaded_file, job_df):
     df_resume_sorted = df_resume.head(NUM_POSTING).sort_index(ascending=True)
     df_resume_sorted['Application/Link'] = df_resume_sorted['Application/Link'].apply(make_clickable)
 
+
     df_resume_sorted = df_resume_sorted.reset_index(drop=True).iloc[:, 0:-1]
     df_resume_sorted.index = df_resume_sorted.index + 1
     return df_resume_sorted
@@ -347,8 +348,10 @@ def recommend_job(resume_text, tfidf_matrix, tfidf_vectorizer, df):
     # Get indices of jobs sorted by similarity (highest to lowest)
     job_indices = cosine_similarities.argsort()[0][::-1]
 
-    # Extract the job titles corresponding to the top recommendations
+    # Extract the jobs corresponding to the top recommendations
     top_recommendations_full = [df.iloc[index] for index in job_indices]
+
+
 
     return pd.DataFrame(top_recommendations_full)
 
@@ -397,6 +400,10 @@ def pre_process_data_job(job_df):
     job_df['data'] = job_df['data'].apply(lemmatize_sentence)
     job_df['data'] = job_df['data'].apply(remove_stop_words)
     job_df['data'] = job_df['data'].str.lower()
+
+    # Removing string that has 🔒 (which means no longer active) in application/link
+    job_df["Application/Link"].replace('🔒', pd.NA, inplace=True)
+    job_df.dropna(inplace = True)
 
     return job_df
 
