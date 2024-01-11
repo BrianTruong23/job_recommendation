@@ -17,6 +17,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
+    - name: Download and set up ChromeDriver
+      run: |
+        CHROMEDRIVER_VERSION=114.0.5735.90
+        wget -q -O /tmp/chromedriver.zip https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip
+        unzip /tmp/chromedriver.zip -d $HOME/chromedriver
+        echo "export PATH=$HOME/chromedriver:\$PATH" >> $HOME/.bashrc
+      shell: bash
+
     - name: Set up Python 3.10
       uses: actions/setup-python@v3
       with:
