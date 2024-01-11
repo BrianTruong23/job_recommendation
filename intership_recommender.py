@@ -11,6 +11,7 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from bs4 import BeautifulSoup
+from io import BytesIO
 
 # POS TAG AND Word Lemmatizer
 
@@ -64,14 +65,46 @@ def main():
         job_df = get_job_df()
         df_resume_sorted = post_process_table(resume, job_df)
         display_features_slider(resume, job_df)
-        st.write(df_resume_sorted, unsafe_allow_html=True)
+         # Create a button for exporting to CSV
+        download_csv(df_resume_sorted)
+        st.write(df_resume_sorted.to_html(escape=False), unsafe_allow_html=True)
+
+
+def download_csv(df):
+    st.markdown("**Download the internship postings as CSV File**")
+    filename_csv = "internship_posting.csv"
+    filename_excel = "internship_posting.xlsx"
+    # Create a BytesIO buffer for storing the CSV data
+    csv_buffer = BytesIO()
+    excel_buffer = BytesIO()
+
+    # Export the DataFrame to CSV and save it to the BytesIO buffer
+    df.to_csv(csv_buffer, index=False)
+    # df.to_excel(excel_buffer, index=False)
+
+    # Create download buttons for CSV and Excel files
+    csv_button = st.download_button(
+        label="Download CSV",
+        data=csv_buffer.getvalue(),
+        file_name=filename_csv,
+        mime="text/csv",
+    )
+    excel_button = st.download_button(
+        label="Download Excel",
+        data=excel_buffer.getvalue(),
+        file_name=filename_csv,
+        mime="text/xlsx",
+    )
+
+    if csv_button or excel_button:
+        st.success(f"Data exported to {filename_csv if csv_button else filename_excel}")
 
 
 def display_features_slider(resume, job_df):
 
     selected_features= st.slider(f"Select keywords extracted from your resume:", min_value=1, max_value=100, value=5)
     top_features = get_top_features(resume, job_df)
-    st.write(f"Selected {selected_features} keywords:")
+    st.markdown(f"**Selected {selected_features} keywords:**")
     data = pd.DataFrame({"Top Keywords": top_features[:selected_features]})
     # Display the DataFrame with a maximum of 10 rows
     st.table(data)
@@ -125,7 +158,6 @@ def post_process_table(uploaded_file, job_df):
 
     df_resume_sorted = df_resume_sorted.reset_index(drop=True).iloc[:, 0:-1]
     df_resume_sorted.index = df_resume_sorted.index + 1
-    df_resume_sorted = df_resume_sorted.to_html(escape=False)
     return df_resume_sorted
 
 
@@ -157,7 +189,7 @@ def read_pdf(pdf_file):
     # Get pdf file 
     # Return text of the resume
     reader = PdfReader(pdf_file)
-    number_of_pages = len(reader.pages)
+    # number_of_pages = len(reader.pages)
     page = reader.pages[0]
     resume = page.extract_text()
     return resume
@@ -358,9 +390,9 @@ def pre_process_data_job(job_df):
     pd.DataFrame: A table of recommended jobs that has the pre-processed data for the column "Role".
     """
     # Drop rows with missing values in the "Role" column
-    job_df = job_df.dropna(subset=['Role'])
+    job_df.dropna(subset=['Role'], inplace=True)
 
-    # Apply preprocessing steps
+    # Apply preprocessing steps directly to the original DataFrame
     job_df['data'] = job_df['Role'].apply(keep_alpha_char)
     job_df['data'] = job_df['data'].apply(lemmatize_sentence)
     job_df['data'] = job_df['data'].apply(remove_stop_words)
