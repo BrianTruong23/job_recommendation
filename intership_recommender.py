@@ -209,7 +209,7 @@ def return_data_list():
     job_data_list = []
     
     # Read the content of the HTML file
-    with open('table.html', 'r', encoding='utf-8') as file:
+    with open('WebCrawler/table.html', 'r', encoding='utf-8') as file:
         html_content = file.read()
 
     # Parse the HTML content with BeautifulSoup

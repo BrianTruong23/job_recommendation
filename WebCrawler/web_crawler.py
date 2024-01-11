@@ -29,7 +29,7 @@ try:
     if table_tag:
         # Print the table tag
         # print(table_tag)
-        with open("../table.html", "w") as f:
+        with open("table.html", "w") as f:
             f.write(str(table_tag))
     else:
         print("Table not found within the article.")
