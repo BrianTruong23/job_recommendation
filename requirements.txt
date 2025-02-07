@@ -1,5 +1,6 @@
 pycryptodome==3.15.0
 streamlit==1.10.0
+altair>=4.0.0,<5.0.0
 numpy==1.26.3
 pandas==2.1.4
 PyPDF2==3.0.1
